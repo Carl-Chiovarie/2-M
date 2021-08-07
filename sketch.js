@@ -68,8 +68,8 @@ function genColor (variantColorBase){
   colorMode(HSB); // I know HSV makes more sense but p5 uses HSB
   let HSBPrefs = [
     0,360, //  HUE  don't change this
-    35,70, //  Saturation
-    62,85  //  Brightness
+    40,80, //  Saturation
+    65,85  //  Brightness
   ];
   // Have a way to implement color palettes
   // option to display palette colors in order or randomly scattered
