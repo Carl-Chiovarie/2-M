@@ -226,7 +226,8 @@ class pixelBlock{
           } // if neither then they're even
         }
       }
-
+    }
+    
     this.show = function() {
       stroke(this.domColor);
       // strokeWeight(3);
