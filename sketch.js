@@ -1,49 +1,5 @@
 /*
 Project started Aug-2-2021
-
-Hexagons will be drawn in ⬡ the diamond position. Where the point goes up
-
-sudo code
-
-take screen resolution
-
-prompt user
-  pixel to screen scaling resolution
-  starting dominant color
-  dominant color pallette min max values
-  individual pixel block color variance min maxs
-
-for loop that uses x and y render scaling to create all pixelBlocks
-  create them in an array
-  tell each its XY cord
-
-function to create new color (variantColorBase)
-  for color creation use HSB
-  minHue;
-  maxHue;
-
-  minSat;
-  maxSat;
-
-  minVal;
-  maxVal;
-
-  if (variantColorBase === undefined){
-    color(random(min max all the things))
-    return domColorGoal or just call it domColor
-  } else {
-    use individual pixel block color variance values
-
-    use random min max to find change budget for all values (in HSB)
-
-    loop through HSB array
-      random add or subtract value to value from budget
-      also check if adding or subtracting this val would set it across the min-
-      -max border, if so do the opposite subtract or add
-
-    return colorVariGoal
-  }
-
 */
 
 
@@ -86,15 +42,6 @@ function genColor (variantColorBase, HSBVariPrefs){
   // option to display palette colors in order or randomly scattered
   //  if they are randomly scattered their frequency should be tied to their saturation
   //  or a per color custom weight(?) frequency
-
-
-  // wait we should generate a new randomized set of HSBVariPrefs with each 
-  // dom color. It'd make each dom frame(???) more unique
-  // let HSBVariPrefs = [
-  //   -colorVariance,colorVariance
-  //   -10,10, // not sure on these last 4 or really any of these
-  //   -10,10
-  // ];
 
   function checkOverFlow (val, type){ //checks if HSB val is out of bounds and corrects it
     // if (val > 100 && type != 'H') {
