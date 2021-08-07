@@ -188,7 +188,7 @@ class pixelBlock{
     ];
 
     this.genHSBVariPrefs = function(){
-      CVAdjust = mRandom(-0.125, 0.125);
+      CVAdjust = mRandom(-0.1875, 0.1875);
       brightness = mRandom(5, 15);
       saturation = mRandom(5, 15);
       tempColorVariance = colorVariance + (colorVariance * CVAdjust)
@@ -238,13 +238,13 @@ class pixelBlock{
       } else {
 
         if (Math.abs(this.currentColorGoal[0] - this.currentColor[0] > 180)){
-          this.currentColor[0] -= mRandom(0,4);
+          this.currentColor[0] -= mRandom(0,3);
         } else if (Math.abs(this.currentColor[0] - this.currentColorGoal[0] > 180)){
-          this.currentColor[0] += mRandom(0,4);
+          this.currentColor[0] += mRandom(0,3);
         } else if(this.currentColor[0] < this.currentColorGoal[0]){
-          this.currentColor[0] += mRandom(0,3)
+          this.currentColor[0] += mRandom(0,2)
         } else if (this.currentColor[0] > this.currentColorGoal[0]){
-          this.currentColor[0] -= mRandom(0,3)
+          this.currentColor[0] -= mRandom(0,2)
         } // if neither then they're even
 
         if (this.currentColor[0] <= 0){
