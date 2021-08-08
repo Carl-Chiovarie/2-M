@@ -120,7 +120,7 @@ function genColor (colorBase, variPrefs, largeColorChange){
     }
   } // end of checkOverFlow
 
-  if (colorBase != undefined && variPrefs != undefined){ // generates new vari color
+  if (colorBase != undefined && variPrefs != undefined && !largeColorChange){ // generates new vari color
     // adjust variantColorBase to create a slightly different color
 
     let HSB = ['H', 'S', 'B']
@@ -146,10 +146,17 @@ function genColor (colorBase, variPrefs, largeColorChange){
     ];
     return baseColor;
   } else if(largeColorChange){ // generates new complementary base color
-    let negOrPos = Math.round(Math.random()) * 2 - 1
+    let CBAdj = 180 + mRandom(variPrefs[0] * 0.35, variPrefs[1] * 0.35);
 
+    // let colorBaseOpp = (
+    //   colorBase[0] 
+    //   + (180 + mRandom(variPrefs[0] * 0.35, variPrefs[1] * 0.35))
+    // )
+    console.log("Comp color change", CBAdj)
     let baseColor = [
-      checkOverFlow(colorBase[0] + (negOrPos * 180), "H"),
+      // checkOverFlow(colorBase[0] + (180), "H"),
+      // checkOverFlow(colorBaseOpp, "H"),
+      checkOverFlow(colorBase[0] + CBAdj, "H"),
       mRandom(HSBPrefs[2], HSBPrefs[3]),
       mRandom(HSBPrefs[4], HSBPrefs[5])
     ];
@@ -244,9 +251,9 @@ class pixelBlock{
       }
     }
 
+    // let strokeFadeDelay = FPS * 1;
     this.show = function() {
       stroke(this.baseColor);
-      // strokeWeight(3);
       fill(this.currentColor);
       push(); // saves current canvas configs
         // NOTE this draws a hex at the center of a given position
@@ -263,6 +270,40 @@ class pixelBlock{
           vertex(-sideLen, 0);
         endShape(CLOSE); 
       pop(); // resets all changes to past canvas configs
+
+      // failed attempt at getting the stroke outline to fade in slightly
+      // this.drawHex = function (colorFill,colorStroke){
+      //   stroke(colorStroke);
+      //   fill(colorFill);
+      //   push(); // saves current canvas configs
+      //     // NOTE this draws a hex at the center of a given position
+      //     // translate(transX, transY);
+      //     translate(this.position[0], this.position[1]);
+      //     // rotate(rotation);
+      //     rotate(90);
+      //     beginShape();  
+      //       vertex(-sideLen/2, -hexWidth);
+      //       vertex(sideLen/2, -hexWidth);
+      //       vertex(sideLen, 0);
+      //       vertex(sideLen/2, hexWidth);
+      //       vertex(-sideLen/2, hexWidth);
+      //       vertex(-sideLen, 0);
+      //     endShape(CLOSE); 
+      //   pop(); // resets all changes to past canvas configs
+      // }
+      // let frameWhenBaseSet = frameCount
+      // let frameSinceBaseSet = frameCount - frameWhenBaseSet;
+
+      // if (frameSinceBaseSet < strokeFadeDelay){
+      //   this.drawHex(this.currentColor, [
+      //     ...(this.baseColor.splice(-1)),
+      //     this.baseColor[3] 
+      //       + ((100 - this.baseColor) * (frameSinceBaseSet / strokeFadeDelay))
+      //   ]);
+      // } else {
+      //   this.drawHex(this.currentColor, this.baseColor);
+      // }
+
     } // end of show function
   } // end of constructor
 } // end of class
@@ -368,7 +409,7 @@ function genAllPixelBlocks() {
 
 let FPS = 60;
 let frameCountStart = 0;
-let baseTimeMinMax = [8, 15] // in seconds
+let baseTimeMinMax = [8, 15]; // in seconds
 let baseSetTime;
 
 let timerToggle = true
@@ -380,14 +421,11 @@ function checkBaseTimer(overRide, compColor){
   if(timerToggle == true){
     // if the baseSetTime is reached a new base color is generated and set to the PBs
     if (framesSince > baseSetTime * FPS || overRide != undefined){
+      let newVariPrefs = genVariPrefs();
       let newBase = genColor();
       if(mRandom(0,4) == 1 || compColor){
-        newBase = genColor(pixelBlocksArray[0][0].baseColor, undefined, true);
-        console.log("Comp color change")
-      } else {
-        console.log("")
-      }
-      let newVariPrefs = genVariPrefs();
+        newBase = genColor(pixelBlocksArray[0][0].baseColor, newVariPrefs, true);
+      } 
       background(newBase);
       for (let xAxis = 0; xAxis < pixelBlocksArray.length; xAxis++){
         for (let yAxis = 0; yAxis < pixelBlocksArray[xAxis].length; yAxis++){
