@@ -22,10 +22,10 @@ function checkEqual (array1, array2){
 }
 
 function genVariPrefs(){
-  let CVAdjust = mRandom(-25, 15);
+  let CVAdjust = 0.01 * mRandom(-30, 15); // adjusts by percentage
   let saturation = mRandom(8, 15);
   let brightness = mRandom(8, 15);
-  let tempColorVariance =  colorVariance + (colorVariance * (CVAdjust * 0.01));
+  let tempColorVariance =  colorVariance + (colorVariance * CVAdjust);
 
   // HSBPrefs = [ for reference
   //   0,360, //  HUE  don't change this
@@ -33,22 +33,27 @@ function genVariPrefs(){
   //   70,95  //  Brightness
   // ]
 
-  // let baseColor = [
+  // let baseColor = [ also for reference
   //   mRandom(HSBPrefs[0], HSBPrefs[1] - HSBPrefs[2]),
   //   mRandom(HSBPrefs[3], HSBPrefs[4]),
   //   mRandom(HSBPrefs[5], )
   // ];
 
+  // let variPrefs = [
+  //   // -tempColorVariance,tempColorVariance,
+  //   -colorVariance,colorVariance, // there should be another "," here but the bug looks better lol
+  //   -saturation,saturation,
+  //   -brightness,brightness
+  // ];
   let variPrefs = [
-    // -tempColorVariance,tempColorVariance,
-    -colorVariance,colorVariance // there should be another "," here but the bug looks better lol
-    -saturation,saturation,
-    -brightness,brightness
+    -tempColorVariance,tempColorVariance,
+    -saturation,saturation
+    // -brightness,brightness // having brightness and saturation change is too much noise
   ];
   return variPrefs;
 }
 
-function genColor (variantColorBase, variPrefs){
+function genColor (colorBase, variPrefs, largeColorChange){
   colorMode(HSB); // I know HSV makes more sense but p5 uses HSB
   let HSBPrefs = [
     // // white angelic pastels
@@ -58,8 +63,8 @@ function genColor (variantColorBase, variPrefs){
 
     // new better settings
     0,360, //  HUE  don't change this
-    10,80, //  Saturation
-    70,95  //  Brightness
+    20,80, //  Saturation
+    80,95  //  Brightness
     // 70,95  //  Brightness
 
     // old settings
@@ -115,14 +120,8 @@ function genColor (variantColorBase, variPrefs){
     }
   } // end of checkOverFlow
 
-  if (variantColorBase === undefined){ // creates new random color
-    let baseColor = [
-      mRandom(HSBPrefs[0], HSBPrefs[1]),
-      mRandom(HSBPrefs[2], HSBPrefs[3]),
-      mRandom(HSBPrefs[4], HSBPrefs[5])
-    ];
-    return baseColor;
-  } else { // adjust variantColorBase to create a slightly different color
+  if (colorBase != undefined && variPrefs != undefined){ // generates new vari color
+    // adjust variantColorBase to create a slightly different color
 
     let HSB = ['H', 'S', 'B']
     let variColor = []
@@ -131,14 +130,30 @@ function genColor (variantColorBase, variPrefs){
     for (let i = 0; i < 3; i++){ // creates new color by randomizing all three vals
       variColor.push(
         checkOverFlow( // check overflow also solves overflows
-          variantColorBase[i] + mRandom(variPrefs[j], variPrefs[j + 1]),
+          colorBase[i] + mRandom(variPrefs[j], variPrefs[j + 1]),
           HSB[i]
         )
       );
       j += 2;
     }
-
     return variColor;
+
+  } else if (variPrefs == undefined && !largeColorChange){ // generates new base color
+    let baseColor = [
+      mRandom(HSBPrefs[0], HSBPrefs[1]),
+      mRandom(HSBPrefs[2], HSBPrefs[3]),
+      mRandom(HSBPrefs[4], HSBPrefs[5])
+    ];
+    return baseColor;
+  } else if(largeColorChange){ // generates new complementary base color
+    let negOrPos = Math.round(Math.random()) * 2 - 1
+
+    let baseColor = [
+      checkOverFlow(colorBase[0] + (negOrPos * 180), "H"),
+      mRandom(HSBPrefs[2], HSBPrefs[3]),
+      mRandom(HSBPrefs[4], HSBPrefs[5])
+    ];
+    return baseColor;
   }
 
 } // end of genColor
@@ -167,9 +182,9 @@ class pixelBlock{
       this.currentColorGoal = inputColor;
     }
 
-    // May not be necessary if we just set colorDom to a global var
-    this.setDom = function(inputDom) {
-      this.baseColor = inputDom;
+    // May not be necessary if we just set colorBase to a global var
+    this.setBase = function(inputBase) {
+      this.baseColor = inputBase;
       this.setGoal(this.baseColor);
     }
 
@@ -268,7 +283,7 @@ function genAllPixelBlocks() {
   let solidCount;
   if (confirm("Would you like to use custom inputs? Press cancel for default")){
     solidCount = prompt("Hexagon X axis count. Default 35 for PC 20 for mobile");
-    strokeWeight(prompt("Outline thickness. Default 3 for PC 1 for mobile"));
+    strokeWeight(prompt("Outline thickness. Default 2 for PC, 0.5 - 1 for mobile"));
   } else {
     if (windowWidth > windowHeight){
       solidCount = 35;
@@ -307,10 +322,10 @@ function genAllPixelBlocks() {
   let hexSide =  hexWidth / Math.acos(30 * (PI/180))
 
   // three stacked hex sides is equal to two layers
-  let layerCount = Math.ceil(((((windowHeight - hexSide) / hexSide) / 3) * 2) + 1)
+  let layerCount = Math.ceil((((windowHeight - hexSide) / hexSide) / 3) * 2) + 1
   console.log("layerCount", layerCount);
 
-  let tempDom = genColor();
+  let tempBase = genColor();
 
   for (let layer = 0; layer < layerCount; layer++){
     pixelBlocksArray.push([])
@@ -324,7 +339,7 @@ function genAllPixelBlocks() {
               // I'm subtracting sideLen to fix the offset from clipping the first layer
               (layer * hexSide * 1.5)
             ],
-            tempDom,
+            tempBase,
             hexSide,
             hexWidth,
             [layerPos, layer]
@@ -340,7 +355,7 @@ function genAllPixelBlocks() {
               (layerPos * (hexWidth * 2)) + hexWidth,
               layer * (hexSide * 1.5)
             ],
-            tempDom,
+            tempBase,
             hexSide,
             hexWidth,
             [layerPos, layer]
@@ -353,25 +368,31 @@ function genAllPixelBlocks() {
 
 let FPS = 60;
 let frameCountStart = 0;
-let baseTimeMinMax = [5, 12] // in seconds
+let baseTimeMinMax = [8, 15] // in seconds
 let baseSetTime;
 
 let timerToggle = true
 
-function checkDomTimer(overRide){
+function checkBaseTimer(overRide, compColor){
   // calcs frames since start or last reset
-  let framesSince = frameCount  - frameCountStart;
+  let framesSince = frameCount - frameCountStart;
 
   if(timerToggle == true){
     // if the baseSetTime is reached a new base color is generated and set to the PBs
     if (framesSince > baseSetTime * FPS || overRide != undefined){
-      let newDom = genColor();
+      let newBase = genColor();
+      if(mRandom(0,4) == 1 || compColor){
+        newBase = genColor(pixelBlocksArray[0][0].baseColor, undefined, true);
+        console.log("Comp color change")
+      } else {
+        console.log("")
+      }
       let newVariPrefs = genVariPrefs();
-      background(newDom);
+      background(newBase);
       for (let xAxis = 0; xAxis < pixelBlocksArray.length; xAxis++){
         for (let yAxis = 0; yAxis < pixelBlocksArray[xAxis].length; yAxis++){
+          pixelBlocksArray[xAxis][yAxis].setBase(newBase);
           pixelBlocksArray[xAxis][yAxis].setVariPrefs(newVariPrefs)
-          pixelBlocksArray[xAxis][yAxis].setDom(newDom);
         }
       } // end of loops
 
@@ -385,7 +406,7 @@ function checkDomTimer(overRide){
 
 function touchStarted() {
   if (timerToggle == true){
-    checkDomTimer("overRide");
+    checkBaseTimer("overRide");
   } else {
     console.log("Scene generation is paused, press space to unpause")
   }
@@ -426,22 +447,30 @@ function sceneToggleUserPrompt(){
 */
 
 function keyPressed() {
-  if (keyCode === ENTER) {
+  if (keyCode == ENTER) {
     colorMode(HSB);
-    userDomColor = prompt("Please enter a HEX color. example: #ff8c69");
-    userDomColor = color(userDomColor).levels; // translates to HSB
+    userBaseColor = prompt("Please enter a HEX color. example: #ff8c69");
+    userBaseColor = color(userBaseColor).levels; // translates to HSB
 
-    if (userDomColor != undefined){
-      checkDomTimer("overRide");
+    if (userBaseColor != undefined){
+      checkBaseTimer("overRide");
       for (let layer of pixelBlocksArray){
         for (let layerPos of layer){
-          layerPos.setDom(userDomColor);
+          layerPos.setBase(userBaseColor);
         }
       } // end loop de loops
     }
   }
 
-  if (keyCode === 32){ // spaceBar
+  if (keyCode == 17){
+    if (timerToggle == true){
+      checkBaseTimer("overRide", true);
+    } else {
+      console.log("Scene generation is paused, press space to unpause")
+    }
+  }
+
+  if (keyCode == 32){ // spaceBar
     timerToggle = !timerToggle; // flips toggle to pause
     promptToggle = timerToggle;
     if (!timerToggle) {
@@ -466,7 +495,7 @@ function setup() {
 }
 
 function draw() {
-  checkDomTimer();
+  checkBaseTimer();
 
   // loops through every pixelBlock, asks it to update its properties and draw
   for (let layer of pixelBlocksArray){
