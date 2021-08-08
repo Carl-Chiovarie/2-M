@@ -22,10 +22,14 @@ function checkEqual (array1, array2){
 }
 
 function genVariPrefs(){
-  let CVAdjust = 0.01 * mRandom(-30, 15); // adjusts by percentage
-  let saturation = mRandom(8, 15);
-  let brightness = mRandom(8, 15);
-  let tempColorVariance =  colorVariance + (colorVariance * CVAdjust);
+  let CVAdjustMin = 0.01 * mRandom(-30, 15); // adjusts by percentage
+  let CVAdjustMax = 0.01 * mRandom(-30, 15); // adjusts by percentage
+  let tempColorVariance = [
+    colorVariance + (colorVariance * CVAdjustMin), 
+    colorVariance + (colorVariance * CVAdjustMin)
+  ]
+  let saturation = [mRandom(0, 15), mRandom(0, 15)];
+  let brightness = [mRandom(0, 15), mRandom(0, 15)];
 
   // HSBPrefs = [ for reference
   //   0,360, //  HUE  don't change this
@@ -46,9 +50,9 @@ function genVariPrefs(){
   //   -brightness,brightness
   // ];
   let variPrefs = [
-    -tempColorVariance,tempColorVariance,
-    -saturation,saturation
-    // -brightness,brightness // having brightness and saturation change is too much noise
+    -tempColorVariance[0], tempColorVariance[1],
+    -saturation[0], saturation[1],
+    -brightness[0], brightness[1] // having brightness and saturation change is too much noise
   ];
   return variPrefs;
 }
@@ -64,7 +68,7 @@ function genColor (colorBase, variPrefs, largeColorChange){
     // new better settings
     0,360, //  HUE  don't change this
     20,80, //  Saturation
-    80,95  //  Brightness
+    65,95  //  Brightness
     // 70,95  //  Brightness
 
     // old settings
@@ -119,33 +123,8 @@ function genColor (colorBase, variPrefs, largeColorChange){
       return val // color passed all checks no changes needed
     }
   } // end of checkOverFlow
-
-  if (colorBase != undefined && variPrefs != undefined && !largeColorChange){ // generates new vari color
-    // adjust variantColorBase to create a slightly different color
-
-    let HSB = ['H', 'S', 'B']
-    let variColor = []
-
-    let j = 0;
-    for (let i = 0; i < 3; i++){ // creates new color by randomizing all three vals
-      variColor.push(
-        checkOverFlow( // check overflow also solves overflows
-          colorBase[i] + mRandom(variPrefs[j], variPrefs[j + 1]),
-          HSB[i]
-        )
-      );
-      j += 2;
-    }
-    return variColor;
-
-  } else if (variPrefs == undefined && !largeColorChange){ // generates new base color
-    let baseColor = [
-      mRandom(HSBPrefs[0], HSBPrefs[1]),
-      mRandom(HSBPrefs[2], HSBPrefs[3]),
-      mRandom(HSBPrefs[4], HSBPrefs[5])
-    ];
-    return baseColor;
-  } else if(largeColorChange){ // generates new complementary base color
+  
+  if(largeColorChange){ // generates new complementary base color
     let CBAdj = 180 + mRandom(variPrefs[0] * 0.35, variPrefs[1] * 0.35);
 
     // let colorBaseOpp = (
@@ -161,8 +140,30 @@ function genColor (colorBase, variPrefs, largeColorChange){
       mRandom(HSBPrefs[4], HSBPrefs[5])
     ];
     return baseColor;
-  }
+  } else if (variPrefs == undefined){ // generates new base color
+    let baseColor = [
+      mRandom(HSBPrefs[0], HSBPrefs[1]),
+      mRandom(HSBPrefs[2], HSBPrefs[3]),
+      mRandom(HSBPrefs[4], HSBPrefs[5])
+    ];
+    return baseColor;
+  } else { // generates new vari color
+    // adjust variantColorBase to create a slightly different color
+    let HSB = ['H', 'S', 'B']
+    let variColor = []
 
+    let j = 0;
+    for (let i = 0; i < 3; i++){ // creates new color by randomizing all three vals
+      variColor.push(
+        checkOverFlow( // check overflow also solves overflows
+          colorBase[i] + mRandom(variPrefs[j], variPrefs[j + 1]),
+          HSB[i]
+        )
+      );
+      j += 2;
+    }
+    return variColor;
+  }
 } // end of genColor
 
 
@@ -515,9 +516,10 @@ function keyPressed() {
     timerToggle = !timerToggle; // flips toggle to pause
     promptToggle = timerToggle;
     if (!timerToggle) {
+      console.log("");
       console.log("timerToggle", timerToggle);
       console.log("baseColor", pixelBlocksArray[0][0].baseColor);
-      console.log("variPrefs",pixelBlocksArray[0][0].variPrefs);
+      console.log("variPrefs", pixelBlocksArray[0][0].variPrefs);
     } else {
       console.log("timerToggle", timerToggle);
       console.log("");
@@ -537,7 +539,6 @@ function setup() {
 
 function draw() {
   checkBaseTimer();
-
   // loops through every pixelBlock, asks it to update its properties and draw
   for (let layer of pixelBlocksArray){
     for (let layerPos of layer){
