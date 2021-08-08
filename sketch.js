@@ -405,10 +405,13 @@ function checkBaseTimer(overRide, compColor){
 }
 
 function touchStarted() {
-  if (timerToggle == true){
+  // checking frame count prevents detecting a touch event twice
+  if (timerToggle && (frameCount - frameCountStart) > (FPS / 16)){
     checkBaseTimer("overRide");
-  } else {
+  } else if (!timerToggle){
     console.log("Scene generation is paused, press space to unpause")
+  } else {
+    console.log("You're tapping too fast!")
   }
 }
 
