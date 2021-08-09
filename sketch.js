@@ -22,14 +22,15 @@ function checkEqual (array1, array2){
 }
 
 function genVariPrefs(){
-  let CVAdjustMin = 0.01 * mRandom(-30, 15); // adjusts by percentage
-  let CVAdjustMax = 0.01 * mRandom(-30, 15); // adjusts by percentage
+  // let CVAdjust = [0.01 * mRandom(0, 10), 0.01 * mRandom(0, 10)]; // grey colors
+  let CVAdjust = [0.01 * mRandom(20, 40), 0.01 * mRandom(10, 25)]; // adjusts by percentage
   let tempColorVariance = [
-    colorVariance + (colorVariance * CVAdjustMin), 
-    colorVariance + (colorVariance * CVAdjustMin)
+    Math.floor(colorVariance * CVAdjust[0]), 
+    Math.ceil(colorVariance * CVAdjust[1])
   ]
-  let saturation = [mRandom(0, 15), mRandom(0, 15)];
-  let brightness = [mRandom(0, 15), mRandom(0, 15)];
+  // let saturation = [mRandom(0, 0), mRandom(0, 0)]; // grey colors
+  let saturation = [mRandom(5, 20), mRandom(5, 20)];
+  let brightness = [mRandom(0, 5), mRandom(0, 5)];
 
   // HSBPrefs = [ for reference
   //   0,360, //  HUE  don't change this
@@ -52,7 +53,7 @@ function genVariPrefs(){
   let variPrefs = [
     -tempColorVariance[0], tempColorVariance[1],
     -saturation[0], saturation[1],
-    -brightness[0], brightness[1] // having brightness and saturation change is too much noise
+    -brightness[0], brightness[1]
   ];
   return variPrefs;
 }
@@ -60,21 +61,22 @@ function genVariPrefs(){
 function genColor (colorBase, variPrefs, largeColorChange){
   colorMode(HSB); // I know HSV makes more sense but p5 uses HSB
   let HSBPrefs = [
-    // // white angelic pastels
+    // grey mode  change saturation random range in variPrefs rM(0,10)
     // 0,360, //  HUE  don't change this
-    // 0,10, //  Saturation
+    // 2,5, //  Saturation
+    // 10,30  //  Brightness
+    
+    // // pastels
+    // 0,360, //  HUE  don't change this
+    // 0,20, //  Saturation
     // 90,100  //  Brightness
+    
 
     // new better settings
     0,360, //  HUE  don't change this
     20,80, //  Saturation
     65,95  //  Brightness
-    // 70,95  //  Brightness
 
-    // old settings
-    // 0,360, //  HUE  don't change this
-    // 40,80, //  Saturation
-    // 69,85  //  Brightness
   ];
   /* Have a way to implement color palettes
   option to display palette colors in order or randomly scattered
@@ -167,23 +169,25 @@ function genColor (colorBase, variPrefs, largeColorChange){
 } // end of genColor
 
 
-let colorVariance = prompt("Input Color variance. Less is calm more is chaos. Recommended ~30")
+let colorVariance = prompt("Input Color variance. Less is calm more is chaos. Recommended ~100")
 if (colorVariance == undefined){
-  colorVariance = 30;
+  colorVariance = 100;
 }
 class pixelBlock{
-  constructor (position, baseColor, sideLen, hexWidth, ID){
+  constructor (position, baseColor, variPrefs, sideLen, hexWidth, ID){
     this.ID = ID;
     this.position = position;
     this.baseColor = baseColor;
     this.currentColor = [this.baseColor[0], this.baseColor[1], this.baseColor[2]];
     this.currentColorGoal = [this.baseColor[0], this.baseColor[1], this.baseColor[2]];
     this.goalType = "vari"; // approaching variation or base color
-    this.variPrefs = [
-      -colorVariance,colorVariance
-      -10,10, // not sure on these last 4 or really any of these
-      -10,10
-    ]; 
+    this.variPrefs = variPrefs;
+
+    // this.variPrefs = [
+    //   -colorVariance,colorVariance
+    //   -10,10, // not sure on these last 4 or really any of these
+    //   -10,10
+    // ]; 
 
 
     this.setGoal = function(inputColor ) {
@@ -309,7 +313,7 @@ class pixelBlock{
   } // end of constructor
 } // end of class
 
-
+let pixelBlockCount = 0;
 let pixelBlocksArray = []
 function genAllPixelBlocks() {
   // if the scale = 16 there will be 16 equally sized hexagons. Their size is
@@ -364,10 +368,12 @@ function genAllPixelBlocks() {
   let hexSide =  hexWidth / Math.acos(30 * (PI/180))
 
   // three stacked hex sides is equal to two layers
-  let layerCount = Math.ceil((((windowHeight - hexSide) / hexSide) / 3) * 2) + 1
+  // let layerCount = Math.ceil((((windowHeight - hexSide) / hexSide) / 3) * 2) + 1
+  let layerCount = Math.ceil(((windowHeight / hexSide) / 3) * 2) + 1
   console.log("layerCount", layerCount);
 
   let tempBase = genColor();
+  let tempVariPref = genVariPrefs();
 
   for (let layer = 0; layer < layerCount; layer++){
     pixelBlocksArray.push([])
@@ -382,11 +388,13 @@ function genAllPixelBlocks() {
               (layer * hexSide * 1.5)
             ],
             tempBase,
+            tempVariPref,
             hexSide,
             hexWidth,
             [layerPos, layer]
           )
         );
+        pixelBlockCount++;
       }
     } else {
       for (let layerPos = 0; layerPos < solidCount; layerPos++){ 
@@ -398,17 +406,19 @@ function genAllPixelBlocks() {
               layer * (hexSide * 1.5)
             ],
             tempBase,
+            tempVariPref,
             hexSide,
             hexWidth,
             [layerPos, layer]
           )
         );
+        pixelBlockCount++;
       }
     }
   } // end of all loops
 } // end of genAllPixelBlocks
 
-let FPS = 60;
+let FPS = 30;
 let frameCountStart = 0;
 let baseTimeMinMax = [8, 15]; // in seconds
 let baseSetTime;
@@ -427,7 +437,7 @@ function checkBaseTimer(overRide, compColor){
       if(mRandom(0,4) == 1 || compColor){
         newBase = genColor(pixelBlocksArray[0][0].baseColor, newVariPrefs, true);
       } 
-      background(newBase);
+      // background(newBase);
       for (let xAxis = 0; xAxis < pixelBlocksArray.length; xAxis++){
         for (let yAxis = 0; yAxis < pixelBlocksArray[xAxis].length; yAxis++){
           pixelBlocksArray[xAxis][yAxis].setBase(newBase);
@@ -533,8 +543,8 @@ function setup() {
   genAllPixelBlocks();
   frameRate(FPS);
   baseSetTime = mRandom(baseTimeMinMax[0], baseTimeMinMax[1]);
-  console.log("baseSetTime", baseSetTime)
   console.log("pixelBlocksArray", pixelBlocksArray);
+  console.log("pixelBlockCount", pixelBlockCount);
 }
 
 function draw() {
