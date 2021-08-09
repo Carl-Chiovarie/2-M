@@ -258,9 +258,9 @@ class pixelBlock{
 
         for (let i = 1; i < 3; i++){
           if (this.currentColor[i] < this.currentColorGoal[i]){
-            this.currentColor[i] += mRandom(0, 1);
+            this.currentColor[i] += mRandom(0, 1) * 0.5;
           } else if (this.currentColor[i] > this.currentColorGoal[i]){
-            this.currentColor[i] -= mRandom(0, 1);
+            this.currentColor[i] -= mRandom(0, 1) * 0.5;
           } // if neither then they're even
         }
       }
