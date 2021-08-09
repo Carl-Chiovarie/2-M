@@ -406,7 +406,7 @@ function genAllPixelBlocks(){
 
 let FPS = 24;
 let frameCountStart = 0;
-let baseTimeMinMax = [10, 20]; // in seconds
+let baseTimeMinMax = [5, 20]; // seconds
 let baseSetTime;
 
 let timerToggle = true;
@@ -529,6 +529,7 @@ function keyPressed(){
 }
 
 function setup(){
+  frameRate(FPS);
   angleMode(DEGREES);
   createCanvas(windowWidth, windowHeight);
   genAllPixelBlocks();
