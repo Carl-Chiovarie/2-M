@@ -166,12 +166,6 @@ function genColor (colorBase, variPrefs, largeColorChange){
 } // end of genColor
 
 let colorVariance = 100
-// let colorVariance = prompt(
-//   "Input Color variance. Recommended ~100, cancel for default"
-// );
-// if (colorVariance == undefined){
-//   colorVariance = 100;
-// }
 class pixelBlock{
   constructor(position, baseColor, variPrefs, sideLen, hexWidth, ID){
     this.ID = ID;
@@ -313,7 +307,7 @@ function genAllPixelBlocks(){
       prompt("Outline thickness. Default 2 for PC, 0.5 - 1 for mobile")
     );
     colorVariance = prompt(
-      "Input Color variance. Recommended ~100, cancel for default"
+      "Input Color variance. Recommended ~100"
     );
   } else{
     if (windowWidth > windowHeight){
@@ -406,7 +400,7 @@ function genAllPixelBlocks(){
 
 let FPS = 24;
 let frameCountStart = 0;
-let baseTimeMinMax = [5, 20]; // seconds
+let baseTimeMinMax = [5, 20]; // in seconds
 let baseSetTime;
 
 let timerToggle = true;
@@ -417,7 +411,7 @@ function checkBaseTimer(overRide, compColor){
 
   if (timerToggle == true){
     // if the baseSetTime is reached a new base color is generated and set to the PBs
-    if (framesSince > baseSetTime * FPS || overRide != undefined){
+    if (framesSince > (baseSetTime * FPS) || overRide != undefined){
       let newVariPrefs = genVariPrefs();
       let newBase = genColor();
       if (mRandom(0, 4) == 1 || compColor){
@@ -437,6 +431,7 @@ function checkBaseTimer(overRide, compColor){
 
       // resets base timer
       baseSetTime = mRandom(baseTimeMinMax[0], baseTimeMinMax[1]);
+      console.log("New baseSetTime", baseSetTime);
       // console.log("new baseSetTime", baseSetTime)
       frameCountStart = frameCount;
     }
@@ -453,40 +448,6 @@ function touchStarted(){
     console.log("You're tapping too fast!");
   }
 }
-
-/*
-let displayTime = 4 * FPS;
-let frameCountStartDT = 0;
-let promptToggle = timerToggle;
-function sceneToggleUserPrompt(){
-  let timeDisplayed = frameCount - frameCountStartDT
-  if (displayTime < timeDisplayed){
-    promptToggle = !promptToggle
-  }
-  if (!timerToggle && promptToggle){
-    push();
-      rectMode(CENTER);
-      fill(genColor(pixelBlocksArray[0][0].baseColor));
-      rect(windowWidth / 2, windowHeight * (0.0656), 390, 100);
-      textAlign(CENTER, BOTTOM);
-      textSize(32);
-      stroke('gray')
-      fill('white');
-      text(
-        "Scene generation paused", 
-        windowWidth / 2, 
-        windowHeight * (1 / 16)
-      );
-      textSize(20);
-      text(
-        "Press space to unpause", 
-        windowWidth / 2, 
-        (windowHeight * (1 / 16)) + 23
-      );
-    pop();
-  }
-}
-*/
 
 function keyPressed(){
   if (keyCode == ENTER){
@@ -513,8 +474,8 @@ function keyPressed(){
   }
 
   if (keyCode == 32){ // spaceBar
+    frameCountStart = frameCount;
     timerToggle = !timerToggle; // flips toggle to pause
-    promptToggle = timerToggle;
     if (!timerToggle){
       console.log("");
       console.log("timerToggle", timerToggle);
