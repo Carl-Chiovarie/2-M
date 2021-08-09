@@ -404,7 +404,7 @@ function genAllPixelBlocks(){
   } // end of all loops
 } // end of genAllPixelBlocks
 
-let FPS = 30;
+let FPS = 24;
 let frameCountStart = 0;
 let baseTimeMinMax = [10, 20]; // in seconds
 let baseSetTime;
