@@ -400,7 +400,7 @@ function genAllPixelBlocks(){
 
 let FPS = 24;
 let frameCountStart = 0;
-let baseTimeMinMax = [5, 20]; // in seconds
+let baseTimeMinMax = [10, 20]; // in seconds
 let baseSetTime;
 
 let timerToggle = true;
@@ -440,7 +440,7 @@ function checkBaseTimer(overRide, compColor){
 
 function touchStarted(){
   // checking frame count prevents detecting a touch event twice
-  if (timerToggle && frameCount - frameCountStart > FPS / 16){
+  if (timerToggle && frameCount - frameCountStart > FPS / 8){
     checkBaseTimer("overRide");
   } else if (!timerToggle){
     console.log("Scene generation is paused, press space to unpause");
