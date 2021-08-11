@@ -11,7 +11,7 @@ function mRandom (min, max){
   //The maximum is inclusive and the minimum is inclusive
 }
 
-function shuffle(array) { // i take full credit for this
+function shuffle(array) { // I take full credit for this
   var m = array.length, t, i;
 
   // While there remain elements to shuffle…
