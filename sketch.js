@@ -69,7 +69,6 @@ function genVariPrefs(){
   // ];
 
 
-
   // HSBPrefs = [ for reference
   //   0,360, //  HUE  don't change this
   //   10,80, //  Saturation
@@ -84,6 +83,7 @@ function genVariPrefs(){
 
 
   // this should be returning three values. Theres too many levels of random in this
+  // I tried it, it looks better the other way
   return variPrefs;
 }
 
@@ -188,6 +188,13 @@ function genColor (colorBase, variPrefs, largeColorChange){
       mRandom(HSBPrefs[2], HSBPrefs[3]),
       mRandom(HSBPrefs[4], HSBPrefs[5])
     ];
+    if (colorBase != undefined){
+      baseColor = [
+        checkOverFlow(colorBase[0] + mRandom(60,300), 'H'),
+        mRandom(HSBPrefs[2], HSBPrefs[3]),
+        mRandom(HSBPrefs[4], HSBPrefs[5])
+      ];
+    }
     return baseColor;
   } else{ // generates new vari color
     // adjust variantColorBase to create a slightly different color
@@ -342,6 +349,7 @@ class pixelBlock{
       //   scaler = mRandom(83, 84) * 0.01;
       // }
       if (scaler < this.scaleMin * 0.01){
+        // scaler = mRandom(this.scaleMin, this.scaleMin + 1) * 0.005; // cool bug
         scaler = mRandom(this.scaleMin, this.scaleMin + 1) * 0.01;
       }
 
@@ -529,7 +537,7 @@ function checkBaseTimer(overRide, compColor){
     // if the baseSetTime is reached a new base color is generated and set to the PBs
     if (framesSince > (baseSetTime * FPS) || overRide != undefined){
       let newVariPrefs = genVariPrefs();
-      let newBase = genColor();
+      let newBase = genColor(pixelBlocksArray[0][0].baseColor);
       if (mRandom(0, 8) == 1 || compColor){ // complementary color rarity
         newBase = genColor(
           pixelBlocksArray[0][0].baseColor,
