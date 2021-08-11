@@ -1,5 +1,6 @@
 /*
 Project started Aug-2-2021
+Somewhat done Aug-11-2021
 
 hexagon adaptive rainbow grid thing
 */
@@ -11,7 +12,7 @@ function mRandom (min, max){
   //The maximum is inclusive and the minimum is inclusive
 }
 
-function shuffle(array) { // I take full credit for this
+function shuffle(array) { // i take full credit for this
   var m = array.length, t, i;
 
   // While there remain elements to shuffle…
@@ -40,13 +41,14 @@ function checkEqual (array1, array2){
 }
 
 function genVariPrefs(){
-  // let CVAdjust = [0.01 * mRandom(0, 15), 0.01 * mRandom(20, 70)]; // adjusts by percentage
-  let CVAdjust = [0.01 * mRandom(0, 40), 0.01 * mRandom(0, 30)]; // adjusts by percentage
+  let CVAdjust = [0.01 * mRandom(15, 15), 0.01 * mRandom(20, 70)]; // adjusts by percentage
+  // let CVAdjust = [0.01 * mRandom(0, 70), 0.01 * mRandom(0, 70)]; // adjusts by percentage
+  // let CVAdjust = [0.01 * mRandom(20, 70), 0]; // adjusts by percentage
   let tempColorVariance = [
     Math.floor(colorVariance * CVAdjust[0]),
     Math.ceil(colorVariance * CVAdjust[1])
   ];
-  let saturation = [mRandom(5, 20), mRandom(5, 20)];
+  let saturation = [mRandom(5, 15), mRandom(5, 15)];
   // let brightness = [mRandom(2, 5), mRandom(4, 10)];
   
   let variPrefs = [
@@ -164,7 +166,7 @@ function genColor (colorBase, variPrefs, largeColorChange){
 
   if (largeColorChange){
     // generates new complementary base color
-    let CBAdj = 180 + mRandom(variPrefs[0] * 0.35, variPrefs[1] * 0.35);
+    let CBAdj = 180 //+ mRandom(variPrefs[0] * 0.35, variPrefs[1] * 0.35);
 
     // let colorBaseOpp = (
     //   colorBase[0]
